@@ -22,6 +22,13 @@ class SentryWebhook(WebhookBase):
         else:
             environment = 'Production'
 
+        if 'modules' in payload.get('event'):
+            modules = ['{}=={}'.format(k, v) for k, v in payload['event']['modules'].items()]
+        elif 'tags' in payload.get('event'):
+            modules = ['{}=={}'.format(k, v) for k, v in payload['event']['tags'].items()]
+        else:
+            modules = []
+
         if payload['level'] == 'error':
             severity = 'critical'
         else:
@@ -37,7 +44,7 @@ class SentryWebhook(WebhookBase):
             value=payload['level'],
             text='{} {}'.format(payload['message'], payload['url']),
             tags=['{}={}'.format(k, v) for k, v in payload['event']['tags']],
-            attributes={'modules': ['{}=={}'.format(k, v) for k, v in payload['event']['modules'].items()]},
+            attributes={'modules': modules},
             origin='sentry.io',
             raw_data=str(payload)
         )
