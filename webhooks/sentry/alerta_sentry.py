@@ -22,10 +22,8 @@ class SentryWebhook(WebhookBase):
         else:
             environment = 'Production'
 
-        if 'modules' in payload.get('event'):
+        if 'modules' in payload['event']:
             modules = ['{}=={}'.format(k, v) for k, v in payload['event']['modules'].items()]
-        elif 'tags' in payload.get('event'):
-            modules = ['{}=={}'.format(k, v) for k, v in payload['event']['tags'].items()]
         else:
             modules = []
 
@@ -34,17 +32,25 @@ class SentryWebhook(WebhookBase):
         else:
             severity = 'ok'
 
+        if payload['message'] == '':
+            if 'title' in payload['event']:
+              message = payload['event']['title']
+            else:
+              message = payload['url']
+        else:
+            message = payload['message']
+
         return Alert(
             resource=payload['culprit'],
-            event=payload['event']['event_id'],
+            event=payload['id'],
             environment=environment,
             severity=severity,
             service=[payload['project']],
             group='Application',
             value=payload['level'],
-            text='{} {}'.format(payload['message'], payload['url']),
+            text=message,
             tags=['{}={}'.format(k, v) for k, v in payload['event']['tags']],
-            attributes={'modules': modules},
+            attributes={'modules': modules, 'eventId': payload['event']['event_id'], sentryLink': '<a href="%s" target="_blank">Sentry URL</a>' % payload['url']},
             origin='sentry.io',
             raw_data=str(payload)
         )
