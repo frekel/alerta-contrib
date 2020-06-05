@@ -14,10 +14,13 @@ class SentryWebhook(WebhookBase):
         else:
             key = 'sentry.interfaces.Http'
 
-        if payload.get('event')[key]['env']['ENV'] == 'prod':
-            environment = 'Production'
+        if 'env' in payload.get('event')[key]:
+            if payload.get('event')[key]['env']['ENV'] == 'prod':
+                environment = 'Production'
+            else:
+                environment = 'Development'
         else:
-            environment = 'Development'
+            environment = 'Production'
 
         if payload['level'] == 'error':
             severity = 'critical'
