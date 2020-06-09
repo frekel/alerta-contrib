@@ -50,7 +50,7 @@ class SentryWebhook(WebhookBase):
             value=payload['level'],
             text=message,
             tags=['{}={}'.format(k, v) for k, v in payload['event']['tags']],
-            attributes={'modules': modules, 'eventId': payload['event']['event_id'], sentryLink': '<a href="%s" target="_blank">Sentry URL</a>' % payload['url']},
+            attributes={'modules': modules, 'eventId': payload['event']['event_id'], sentryLink: '<a href="%s" target="_blank">Sentry URL</a>' % payload['url']},
             origin='sentry.io',
             raw_data=str(payload)
         )
